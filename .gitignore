@@ -4,6 +4,9 @@ build-game/
 # Native Linux builds (build-linux.sh)
 build-linux/
 build-linux-game/
+# The iOS build (build-ios.sh)
+.build-ios/
+work_lift.out
 # xwin's download cache, made wherever it is run (setup.sh)
 .xwin-cache/
 out/

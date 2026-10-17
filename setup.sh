@@ -191,14 +191,24 @@ if [ ! -e game ]; then
     done
   fi
   [ -n "$GAME_ARG" ] && candidates=("$GAME_ARG")
+  # Only the exes of the games actually asked for have to be there: an install
+  # holding just Yuri's Revenge lifts just as well as a full The Ultimate Collection.
+  WANT_YR=0; WANT_RA2=0
+  case " $GAMES " in *" yr "*) WANT_YR=1 ;; esac
+  case " $GAMES " in *" ra2 "*) WANT_RA2=1 ;; esac
+  have_wanted() {
+    [ "$WANT_YR" = 1 ] && [ -f "$1/gamemd.exe" ] || return 1
+    [ "$WANT_RA2" = 1 ] && [ -f "$1/game.exe" ] || return 1
+    return 0
+  }
   for d in "${candidates[@]}"; do
-    [ -f "$d/gamemd.exe" ] && [ -f "$d/game.exe" ] && { found=$d; break; }
+    have_wanted "$d" && { found=$d; break; }
   done
-  [ -z "$found" ] && [ -n "$GAME_ARG" ] && fail "no gamemd.exe and game.exe in $GAME_ARG."
+  [ -z "$found" ] && [ -n "$GAME_ARG" ] && fail "the exe(s) for $GAMES are not in $GAME_ARG."
   [ -z "$found" ] && [ "$YES" = 1 ] && fail "Red Alert 2 was not found in Steam. Give its folder with --game-dir."
   while [ -z "$found" ]; do
-    read -r -p "  The folder holding gamemd.exe and game.exe: " found
-    [ -f "$found/gamemd.exe" ] && [ -f "$found/game.exe" ] || { say "  Not there."; found=""; }
+    read -r -p "  The folder holding $GAMES: " found
+    have_wanted "$found" || { say "  Not there."; found=""; }
   done
   ln -s "$found" game
 fi

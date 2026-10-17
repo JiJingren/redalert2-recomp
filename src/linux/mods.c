@@ -28,7 +28,15 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
+/* The screen's key hook. On Linux it is fed an SDL scancode; win32hle's iOS
+ * presenter has no SDL, so there it is fed the Win32 virtual key. Only one
+ * key is looked at, so the header is only needed for that one name. */
+#ifdef __APPLE__
+#define KEY_F9 0x78                     /* VK_F9 */
+#else
 #include <SDL_scancode.h>
+#define KEY_F9 SDL_SCANCODE_F9
+#endif
 #include "win32hle.h"
 #include "recomp_target.h"
 #include "mods.h"
@@ -101,7 +109,7 @@ static void restart_with(const char *name) {
 
 /* F9: the next mod (after the last, none), at the main menu only. */
 static int on_key(int scancode, int down) {
-    if (scancode != SDL_SCANCODE_F9) return 0;
+    if (scancode != KEY_F9) return 0;
     if (!down) return 1;
     if (!script_at_main_menu()) {
         fprintf(stderr, "[mods] F9 switches mods at the main menu\n");
